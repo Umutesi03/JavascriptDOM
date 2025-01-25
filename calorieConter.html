@@ -87,26 +87,32 @@
   <form>
     <label for="budget">Budget</label>
     <input type="number" placeholder="Daily Calorie Budget" id="budget">
+    
     <fieldset id="breakfast">
       <legend>Breakfast</legend>
       <div class="inputContainer"></div>
     </fieldset>
+    
     <fieldset id="lunch">
       <legend>Lunch</legend>
       <div class="inputContainer"></div>
     </fieldset>
+    
     <fieldset id="dinner">
       <legend>Dinner</legend>
       <div class="inputContainer"></div>
     </fieldset>
+    
     <fieldset id="snacks">
       <legend>Snacks</legend>
       <div class="inputContainer"></div>
     </fieldset>
+    
     <fieldset id="exercise">
       <legend>Exercise</legend>
       <div class="inputContainer"></div>
     </fieldset>
+    
     <label for="entryDropdown">Add food or exercise</label>
     <select id="entryDropdown">
       <option value="breakfast">Breakfast</option>
@@ -115,12 +121,13 @@
       <option value="snacks">Snacks</option>
       <option value="exercise">Exercise</option>
     </select>
+    
     <button id="addEntry">Add Entry</button>
   </form>
   <button id="calculateCalories">Calculate Remaining Calories</button>
   <button id="clear">Clear</button>
 
-  <!-- Hidden Calorie Summary -->
+ 
   <div id="calorieSummary" style="display:none;">
     <h2 id="deficit"></h2>
     <hr />
@@ -175,7 +182,7 @@
 
       const deficit = calorieBudget - (caloriesConsumed - caloriesBurned);
 
-      // Update Display and Show Summary
+      
       document.getElementById("calorieSummary").style.display = "block";
       document.getElementById("deficit").textContent = `${deficit} Calorie Deficit`;
       document.getElementById("budgetSummary").textContent = `${calorieBudget} Calories Budgeted`;
