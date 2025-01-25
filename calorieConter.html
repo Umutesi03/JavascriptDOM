@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calorie Counter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a1a1a;
+      color: #fff;
+      padding: 20px;
+    }
+    main{
+        width: 60%;
+        margin: auto;
+        
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    fieldset {
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    label {
+      display: block;
+      margin: 5px 0;
+    }
+
+    .inputContainer input, .inputContainer select {
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 80%;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #calorieSummary {
+      margin-top: 20px;
+      padding: 20px;
+      border: 2px solid #ccc;
+      background-color: #292929;
+      color: #fff;
+      text-align: center;
+      border-radius: 10px;
+    }
+
+    #deficit {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4caf50;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+    select{
+        padding: 10px;
+    }
+    
+  </style>
+</head>
+<body>
+    <main>
+  <h1>Calorie Counter</h1>
+  <form>
+    <label for="budget">Budget</label>
+    <input type="number" placeholder="Daily Calorie Budget" id="budget">
+    <fieldset id="breakfast">
+      <legend>Breakfast</legend>
+      <div class="inputContainer"></div>
+    </fieldset>
+    <fieldset id="lunch">
+      <legend>Lunch</legend>
+      <div class="inputContainer"></div>
+    </fieldset>
+    <fieldset id="dinner">
+      <legend>Dinner</legend>
+      <div class="inputContainer"></div>
+    </fieldset>
+    <fieldset id="snacks">
+      <legend>Snacks</legend>
+      <div class="inputContainer"></div>
+    </fieldset>
+    <fieldset id="exercise">
+      <legend>Exercise</legend>
+      <div class="inputContainer"></div>
+    </fieldset>
+    <label for="entryDropdown">Add food or exercise</label>
+    <select id="entryDropdown">
+      <option value="breakfast">Breakfast</option>
+      <option value="lunch">Lunch</option>
+      <option value="dinner">Dinner</option>
+      <option value="snacks">Snacks</option>
+      <option value="exercise">Exercise</option>
+    </select>
+    <button id="addEntry">Add Entry</button>
+  </form>
+  <button id="calculateCalories">Calculate Remaining Calories</button>
+  <button id="clear">Clear</button>
+
+  <!-- Hidden Calorie Summary -->
+  <div id="calorieSummary" style="display:none;">
+    <h2 id="deficit"></h2>
+    <hr />
+    <p id="budgetSummary"></p>
+    <p id="consumedSummary"></p>
+    <p id="burnedSummary"></p>
+  </div>
+</main>
+
+  <script>
+    document.getElementById("addEntry").addEventListener("click", (e) => {
+      e.preventDefault();
+      addEntry();
+    });
+
+    document.getElementById("calculateCalories").addEventListener("click", calculateSummary);
+
+    document.getElementById("clear").addEventListener("click", () => {
+      document.getElementById("budget").value = '';
+      document.querySelectorAll(".inputContainer").forEach((container) => (container.innerHTML = ""));
+      document.getElementById("calorieSummary").style.display = "none";
+    });
+
+    function addEntry() {
+      const mealChoice = document.getElementById("entryDropdown").value;
+      const targetInputContainer = document.querySelector(`#${mealChoice} .inputContainer`);
+      const entryNumber = targetInputContainer.querySelectorAll('input[type="number"]').length + 1;
+
+      targetInputContainer.insertAdjacentHTML(
+        "beforeend",
+        `<label for="${mealChoice}-${entryNumber}-name">Entry ${entryNumber} Name</label>
+         <input id="${mealChoice}-${entryNumber}-name" type="text">
+         <label for="${mealChoice}-${entryNumber}-calories">Calories</label>
+         <input id="${mealChoice}-${entryNumber}-calories" type="number">`
+      );
+    }
+
+    function calculateSummary() {
+      const calorieBudget = Number(document.getElementById("budget").value || 0);
+
+      const calorieInputs = document.querySelectorAll('fieldset:not(#exercise) input[type="number"]');
+      let caloriesConsumed = 0;
+      calorieInputs.forEach((input) => {
+        caloriesConsumed += Number(input.value || 0);
+      });
+
+      const exerciseInputs = document.querySelectorAll('#exercise input[type="number"]');
+      let caloriesBurned = 0;
+      exerciseInputs.forEach((input) => {
+        caloriesBurned += Number(input.value || 0);
+      });
+
+      const deficit = calorieBudget - (caloriesConsumed - caloriesBurned);
+
+      // Update Display and Show Summary
+      document.getElementById("calorieSummary").style.display = "block";
+      document.getElementById("deficit").textContent = `${deficit} Calorie Deficit`;
+      document.getElementById("budgetSummary").textContent = `${calorieBudget} Calories Budgeted`;
+      document.getElementById("consumedSummary").textContent = `${caloriesConsumed} Calories Consumed`;
+      document.getElementById("burnedSummary").textContent = `${caloriesBurned} Calories Burned`;
+    }
+  </script>
+</body>
+</html>
