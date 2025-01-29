@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        .inner_container{
+            background-color: rgba(97,98,104,255);
+            height: 75vh;
+            width: 30vw;
+            margin: auto;
+            border-radius: 30px;
+            }
+        .container{
+            background-color: rgba(81,83,89,255);
+            height: 78vh;
+            width: 30vw;
+            margin: auto;
+            border-radius: 30px;
+        }
+        button{
+            background-color: white;
+            border: none;
+            padding: 18px 22px;
+            font-weight: bold;
+            font-size: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        } 
+        .equal{
+            background-color: orange;
+        } 
+        
+        table{
+            margin: auto;
+        }
+        input{
+            margin: 10% 18% 6% 16%;
+            background-color: rgba(208,214,225,255);
+            padding: 15px 49px;
+            box-shadow: inset 0px -4px 6px rgba(195,200,212,255);
+            border: none;
+            border-radius: 5px;
+            
+        }
+        td{
+            padding: 6px;
+        }
+        h1{
+            text-align: center;
+            margin-bottom: 2%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Calculator</h1>
+    <div class="container">
+    <div class="inner_container">
+     <form>
+        <input type="text" id="data" readonly>
+
+     </form>
+     <table>
+        <tr>
+            <td><button style="padding: 4px 20px;" class="clear">c</button></td>
+        </tr>
+        <tr>
+            <td><button>7</button></td>
+            <td><button>8</button></td>
+            <td><button>9</button></td>
+            <td><button style="padding: 17px 13px;">➗</button></td>
+
+        </tr>
+        <tr>
+            <td><button>4</button></td>
+            <td><button>5</button></td>
+            <td><button>6</button></td>
+            <td><button>x</button></td>
+            
+
+        </tr>
+
+        <tr>
+            <td><button>1</button></td>
+            <td><button>2</button></td>
+            <td><button>3</button></td>
+            <td><button style="padding: 18px 24px;">-</button></td>
+            
+
+        </tr>
+
+        <tr>
+            <td><button>0</button></td>
+            <td><button style="padding: 18px 25px;">.</button></td>
+            <td><button>+</button></td>
+            <td><button class="equal">=</button></td>
+            
+
+        </tr>
+     </table>
+    </div>
+    </div>
+
+    <script>
+        let input = document.getElementById("data");
+        let buttons = document.querySelectorAll("button");
+
+        function calculate(event){
+        let buttonValue = event.target.innerText;
+        let inputValue = input.value;
+         if(buttonValue === "="){
+            try{
+            inputValue = eval(inputValue.replace("x","*").replace("➗","/"));
+        }
+        catch{
+            inputValue ="Error"
+        }
+         }
+
+         else if(buttonValue === "c"){
+          input.value = "";
+          return;
+         }
+
+         else{
+         inputValue += buttonValue;
+         }
+         
+         input.value = inputValue;
+        }
+
+        buttons.forEach(button => {button.addEventListener("click",calculate)});
+    </script>
+</body>
+</html>
