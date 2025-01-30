@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Platformer Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #007bff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        canvas {
+            background-color: #0056b3;
+            display: block;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .game-over-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .score-animation {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            color: gold;
+            opacity: 1;
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="game-ui">
+        <p>Score: <span id="score">0</span></p>
+        <p>High Score: <span id="highScore">0</span></p>
+    </div>
+
+    <div class="start-screen" id="startScreen">
+        <h2>Press Any Key to Start</h2>
+    </div>
+
+    <div class="game-over-screen" id="gameOverScreen">
+        <h2>Game Over</h2>
+        <p>Your Score: <span id="finalScore">0</span></p>
+        <p>High Score: <span id="finalHighScore">0</span></p>
+        <button onclick="restartGame()">Restart</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreDisplay = document.getElementById("score");
+        const highScoreDisplay = document.getElementById("highScore");
+        const gameOverScreen = document.getElementById("gameOverScreen");
+        const startScreen = document.getElementById("startScreen");
+        const finalScoreDisplay = document.getElementById("finalScore");
+        const finalHighScoreDisplay = document.getElementById("finalHighScore");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let gravity = 0.5;
+        let score = 0;
+        let highScore = 0;
+        let isGameOver = false;
+        let gameStarted = false;
+        let platforms = [];
+        let player;
+
+        class Player {
+            constructor() {
+                this.width = 40;
+                this.height = 40;
+                this.velocity = { x: 0, y: 0 };
+                this.position = {
+                    x: 100,
+                    y: platforms[0].position.y - this.height // Start on the first platform
+                };
+            }
+
+            draw() {
+                ctx.fillStyle = "white";
+                ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+            }
+
+            update() {
+                if (!isGameOver && gameStarted) {
+                    this.position.y += this.velocity.y;
+                    this.velocity.y += gravity;
+
+                    if (this.position.y + this.height >= canvas.height) {
+                        endGame();
+                    }
+
+                    this.draw();
+                }
+            }
+        }
+
+        class Platform {
+            constructor(x, y) {
+                this.width = 100;
+                this.height = 20;
+                this.position = { x, y };
+            }
+
+            draw() {
+                ctx.fillStyle = "white";
+                ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+            }
+        }
+
+        function createPlatforms() {
+            platforms = [];
+            let y = canvas.height - 100;
+            for (let i = 0; i < 8; i++) {
+                let x = Math.random() * (canvas.width - 120);
+                platforms.push(new Platform(x, y));
+                y -= 100;
+            }
+        }
+
+        function movePlatforms() {
+            if (!gameStarted) return;
+
+            platforms.forEach((platform, index) => {
+                platform.position.y += 2;
+
+                if (platform.position.y > canvas.height) {
+                    platforms.splice(index, 1);
+                    let newPlatform = new Platform(Math.random() * (canvas.width - 120), -20);
+                    platforms.push(newPlatform);
+                    updateScore();
+                }
+            });
+        }
+
+        function updateScore() {
+            score += 10;
+            scoreDisplay.textContent = score;
+            createScoreAnimation();
+        }
+
+        function createScoreAnimation() {
+            const scoreElement = document.createElement("div");
+            scoreElement.classList.add("score-animation");
+            scoreElement.innerText = "+10";
+            scoreElement.style.left = `${player.position.x}px`;
+            scoreElement.style.top = `${player.position.y}px`;
+            document.body.appendChild(scoreElement);
+
+            setTimeout(() => {
+                scoreElement.style.opacity = "0";
+                scoreElement.style.transform = "translateY(-50px)";
+                setTimeout(() => document.body.removeChild(scoreElement), 1000);
+            }, 50);
+        }
+
+        function checkCollisions() {
+            platforms.forEach(platform => {
+                if (
+                    player.position.y + player.height >= platform.position.y &&
+                    player.position.y + player.height <= platform.position.y + 10 &&
+                    player.position.x + player.width >= platform.position.x &&
+                    player.position.x <= platform.position.x + platform.width
+                ) {
+                    player.velocity.y = -10;
+                }
+            });
+        }
+
+        function endGame() {
+            isGameOver = true;
+            gameStarted = false;
+            gameOverScreen.style.display = "block";
+            finalScoreDisplay.textContent = score;
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = highScore;
+            }
+            finalHighScoreDisplay.textContent = highScore;
+        }
+
+        function restartGame() {
+            isGameOver = false;
+            gameStarted = false;
+            gameOverScreen.style.display = "none";
+            startScreen.style.display = "block";
+            score = 0;
+            scoreDisplay.textContent = "0";
+            createPlatforms();
+            player = new Player();
+            drawGame();
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            platforms.forEach(platform => platform.draw());
+            player.draw();
+        }
+
+        function startGame() {
+            if (!gameStarted) {
+                gameStarted = true;
+                startScreen.style.display = "none";
+                gameLoop();
+            }
+        }
+
+        function gameLoop() {
+            if (isGameOver) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            player.update();
+            platforms.forEach(platform => platform.draw());
+            movePlatforms();
+            checkCollisions();
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.addEventListener("keydown", (e) => {
+            if (!gameStarted) startGame();
+            if (e.key === "ArrowLeft") player.position.x -= 50;
+            if (e.key === "ArrowRight") player.position.x += 50;
+            if (e.key === " " || e.key === "ArrowUp") player.velocity.y = -12;
+        });
+
+        createPlatforms();
+        player = new Player();
+        drawGame();
+    </script>
+</body>
+</html>
